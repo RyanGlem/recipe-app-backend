@@ -42,9 +42,12 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', upload.any(), (req, res, next) => {
-	if (req?.user ?? false) {
+	console.log('USER: ', JSON.stringify(req.files, null, 2))
+	if (!!(req?.user ?? false)) {
+		const hasFile = (req?.files?.[0]?.filename ?? false) || (req?.file?.filename ?? false) 
+
 		models.Recipe
-			.create({ ...req.body, imageUrl: `${staticRoute}${(req?.files?.[0]?.filename ?? req?.file?.filename)}` , userId: req.user.id })
+			.create({ ...req.body, imageUrl: (!!hasFile && `${staticRoute}${(req?.files?.[0]?.filename ?? req?.file?.filename)}`) || undefined , userId: req.user.id })
 			.then(recipe => {
 				res.status(200)
 				.json({
